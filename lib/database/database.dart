@@ -6,7 +6,7 @@ import 'package:test_db/database/users_table.dart' as users;
 import 'package:test_db/utils/logger.dart';
 import 'package:path/path.dart';
 
-const String dbName = 'my_package_name.db';
+const String dbName = 'users.db';
 
 const tables = [
   users.createTableQuery,

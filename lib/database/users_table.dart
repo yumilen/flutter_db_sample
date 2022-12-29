@@ -1,8 +1,9 @@
 const String tableName = 'users';
 
 const String columnId = 'user_id';
-const String columnName = 'user_name';
-const String columnAge = 'user_age';
+const String columnFirstName = 'user_first_name';
+const String columnLastName = 'user_last_name';
+const String columnBirthDate = 'user_birth_date';
 
 // ====================================
 // No comma after last column!!!
@@ -10,7 +11,8 @@ const String columnAge = 'user_age';
 const String createTableQuery = '''
 CREATE TABLE IF NOT EXISTS $tableName (
 $columnId integer PRIMARY KEY AUTOINCREMENT,
-$columnName text,
-$columnAge integer
+$columnFirstName text,
+$columnLastName text,
+$columnBirthDate text
 );
 ''';
