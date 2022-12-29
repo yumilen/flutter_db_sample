@@ -1,5 +1,6 @@
 import 'package:test_db/model/user.dart';
 
+
 abstract class UsersState {}
 
 class UsersInitState extends UsersState {}
