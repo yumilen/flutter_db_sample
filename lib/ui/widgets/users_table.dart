@@ -41,7 +41,15 @@ class _UsersTableState extends State<UsersTable> {
                   DataColumn(label: Text("Вік")),
                 ],
                 rows: users.map((user) => DataRow(cells: [
-                  DataCell(Text(user.firstName), 
+                  DataCell(
+                    Text(user.firstName,
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        decorationStyle: TextDecorationStyle.wavy,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary
+                      ),
+                    ), 
                     onTap: () async {
                       await Navigator.of(context).push(MaterialPageRoute(
                         builder: (BuildContext context) => UserDetailsScreen(user: user)
