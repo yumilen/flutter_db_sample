@@ -70,19 +70,14 @@ class _UserFormScreenState extends State<UserFormScreen> {
         title: Text(_isUpdate ? 'Редагування користувача' : 'Новий користувач'),
         centerTitle: true,
         actions: [
+          if (_isUpdate) DeleteAction(onPressed: () {
+            _bloc.add(DeleteUserEvent(widget.user as User));
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const UsersScreen())
+            );
+          }),
           SaveAction(onPressed: () { _submitForm(); })
         ],
-        // actions: [(_isUpdate)
-        //   ? DeleteAction(onPressed: () {
-        //       _bloc.add(DeleteUserEvent(widget.user as User));
-        //       Navigator.of(context).push(MaterialPageRoute(
-        //        builder: (context) => const UsersScreen())
-        //       );
-        //     })
-        //   : SaveAction(onPressed: () {
-        //       _submitForm();
-        //     })
-        // ],
       ),
       body: Form(
         key: _formStateKey,
@@ -189,8 +184,6 @@ class _UserFormScreenState extends State<UserFormScreen> {
 
   void _submitForm() {
     if (_formStateKey.currentState!.validate()) {
-      print('Form is Valid!');
-
       _formStateKey.currentState?.save();
 
       if (_isUpdate) {
@@ -202,9 +195,6 @@ class _UserFormScreenState extends State<UserFormScreen> {
           builder: (context) => const UsersScreen()
         ));
       }
-
-    } else {
-      print('Form not Valid!');
     }
   }
 

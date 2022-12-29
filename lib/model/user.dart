@@ -50,7 +50,7 @@ class User {
 
 
   Map<String, Object?> toMap() => {
-    if (id != null) users.columnId: id,
+    if (id > -1) users.columnId: id,
     users.columnFirstName: firstName,
     users.columnLastName: lastName,
     users.columnBirthDate: birthDate.toString()
