@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:test_db/bloc/bloc.dart';
+import 'package:test_db/bloc/events.dart';
 
 import 'package:test_db/model/user.dart';
 
@@ -6,11 +8,24 @@ import 'package:test_db/ui/user_form_screen.dart';
 import 'package:test_db/ui/widgets/actions/edit_action.dart';
 
 
-class UserDetailsScreen extends StatelessWidget {
+class UserDetailsScreen extends StatefulWidget {
   final User user;
 
   const UserDetailsScreen({required this.user, Key? key}) : super(key: key);
 
+  @override
+  State<UserDetailsScreen> createState() => _UserDetailsScreenState();
+}
+
+class _UserDetailsScreenState extends State<UserDetailsScreen> {
+  late final User _user;
+  final _bloc = UsersBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    _user = widget.user;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +34,16 @@ class UserDetailsScreen extends StatelessWidget {
         title: const Text('Деталі користувача'),
         centerTitle: true,
         actions: [
-          EditAction(onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) => UserFormScreen(user: user)
+          EditAction(onPressed: () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => UserFormScreen(user: widget.user)
             ));
+            // _bloc.add(LoadUsersEvent());
+            setState(() {});
           },)
         ],
       ),
-      body: _UserDetailsList(user: user),
+      body: _UserDetailsList(user: _user),
     );
   }
 }

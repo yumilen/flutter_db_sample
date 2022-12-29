@@ -1,52 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:test_db/model/user.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_db/bloc/bloc.dart';
+import 'package:test_db/bloc/events.dart';
+import 'package:test_db/bloc/states.dart';
 import 'package:test_db/ui/user_details_screen.dart';
 
 
-class UsersTable extends StatelessWidget {
-  final List<User> users;
+class UsersTable extends StatefulWidget {
+  const UsersTable({Key? key}) : super(key: key);
 
-  const UsersTable({required this.users, Key? key}) : super(key: key);
+  @override
+  State<UsersTable> createState() => _UsersTableState();
+}
+
+class _UsersTableState extends State<UsersTable> {
+  final _bloc = UsersBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc.add(LoadUsersEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      // controller: controller,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text("Ім'я")),
-            DataColumn(label: Text("Прізвище")),
-            DataColumn(label: Text("Вік")),
-            // DataColumn(label: Text("Видалити")),
-          ],
-          rows: users.map((user) => DataRow(
-            cells: [
-              DataCell(Text(user.firstName),
-                onTap: (() {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => UserDetailsScreen(user: user)
-                  ));
-                })
+    return BlocBuilder<UsersBloc, UsersState>(
+      bloc: _bloc,
+      builder: (context, state) {
+        if (state is UsersLoadedState) {
+          final users = state.users;
+
+          return SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text("Ім'я")),
+                  DataColumn(label: Text("Прізвище")),
+                  DataColumn(label: Text("Вік")),
+                ],
+                rows: users.map((user) => DataRow(cells: [
+                  DataCell(Text(user.firstName), 
+                    onTap: () async {
+                      await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => UserDetailsScreen(user: user)
+                      ));
+                      _bloc.add(LoadUsersEvent());
+                    }
+                  ),
+                  DataCell(Text(user.lastName)),
+                  DataCell(Text(user.age.toString())),
+                ])).toList(),
               ),
-              DataCell(Text(user.lastName)),
-              DataCell(Text(user.age.toString())),
-            /*     
-              DataCell(
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: (() {
-                      _db.deleteStudent(student.id);
-                      _updateStudentList();
-                    }))
-                ) 
-            */
-            ]
-          )).toList(),
-        ),
-      ),
+            ),
+          );
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }

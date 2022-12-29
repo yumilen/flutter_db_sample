@@ -3,16 +3,16 @@ import 'package:intl/intl.dart';
 
 
 class User {
-  final int? id;
-  final String firstName;
-  final String lastName;
-  final DateTime birthDate;
+  int id;
+  String firstName;
+  String lastName;
+  DateTime? birthDate;
 
-  const User({
-    this.id,
-    required this.firstName,
-    required this.lastName,
-    required this.birthDate,
+  User({
+    this.id = -1,
+     this.firstName = '',
+     this.lastName = '', 
+     this.birthDate
   });
 
   User.fromMap(Map<String, dynamic> map) : 
@@ -24,13 +24,16 @@ class User {
       : DateTime.parse(map[users.columnBirthDate]);
 
 
-  String get formattedBirthDate => DateFormat('dd.MM.y').format(birthDate);
+  String get formattedBirthDate => 
+    (birthDate != null) ? DateFormat('dd.MM.y').format(birthDate!) : '';
 
   int get age {
+    if (birthDate == null) return 0;
+
     final now = DateTime.now();
-    int age = now.year - birthDate.year;
+    int age = now.year - birthDate!.year;
   
-    if (now.difference(DateTime(now.year, birthDate.month, birthDate.day)).inHours < 0) {
+    if (now.difference(DateTime(now.year, birthDate!.month, birthDate!.day)).inHours < 0) {
       age--;
     }
   

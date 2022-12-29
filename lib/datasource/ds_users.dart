@@ -26,8 +26,8 @@ class UsersDatasource {
     return await db.update(
       users.tableName, 
       user.toMap(),
-      where: 'id = ${user.id}',
-      // whereArgs: [student.id]
+      where: '${users.columnId} = ?',
+      whereArgs: [user.id]
     );
   }
 

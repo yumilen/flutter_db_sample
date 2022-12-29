@@ -10,3 +10,9 @@ class UsersLoadedState implements UsersState {
 
   UsersLoadedState(this.users);
 }
+
+class UsersEditState extends UsersState{
+  final User user;
+
+  UsersEditState(this.user);
+}

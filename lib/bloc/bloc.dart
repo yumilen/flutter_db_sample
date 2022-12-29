@@ -30,6 +30,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
   Future<void> onEditUserEvent(EditUserEvent event, Emitter<UsersState> emit) async {
     final UsersDatasource usersDs = UsersDatasource(await provideDb());
     usersDs.editUser(event.user);
+    emit(UsersEditState(event.user));
   }
 
   Future<void> onDeleteUserEvent(DeleteUserEvent event, Emitter<UsersState> emit) async {

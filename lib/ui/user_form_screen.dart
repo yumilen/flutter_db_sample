@@ -51,6 +51,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
       _ctrls[users.columnBirthDate]?.text = _user.formattedBirthDate;
     } else {
       _isUpdate = false;
+      _user = User();
     }
   }
 
@@ -64,21 +65,24 @@ class _UserFormScreenState extends State<UserFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-  
     return Scaffold(
       appBar: AppBar(
         title: Text(_isUpdate ? 'Редагування користувача' : 'Новий користувач'),
         centerTitle: true,
-        actions: [(_isUpdate)
-          ? DeleteAction(onPressed: () {
-              _bloc.add(DeleteUserEvent(widget.user as User));
-              Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => const UsersScreen()));
-            })
-          : SaveAction(onPressed: () {
-              _submitForm();
-            })
+        actions: [
+          SaveAction(onPressed: () { _submitForm(); })
         ],
+        // actions: [(_isUpdate)
+        //   ? DeleteAction(onPressed: () {
+        //       _bloc.add(DeleteUserEvent(widget.user as User));
+        //       Navigator.of(context).push(MaterialPageRoute(
+        //        builder: (context) => const UsersScreen())
+        //       );
+        //     })
+        //   : SaveAction(onPressed: () {
+        //       _submitForm();
+        //     })
+        // ],
       ),
       body: Form(
         key: _formStateKey,
@@ -93,8 +97,14 @@ class _UserFormScreenState extends State<UserFormScreen> {
                 icon: Icon(Icons.person)
               ),
               validator: _validateName,
-              onChanged: ((value) => _newUserMap[users.columnFirstName] = value),
-              onSaved: ((newValue) => _newUserMap[users.columnFirstName] = newValue),
+              onChanged: (value) {
+                if (value == _user.firstName) return;
+                _user.firstName = value;
+              },
+              onSaved: (newValue)  {
+                if (newValue == null || newValue == _user.firstName) return;
+                _user.firstName = newValue;
+              },
             ),
 
             const SizedBox(height: 21.0),
@@ -105,8 +115,14 @@ class _UserFormScreenState extends State<UserFormScreen> {
                 icon: Icon(Icons.person)
               ),
               validator: _validateName,
-              onChanged: ((value) => _newUserMap[users.columnLastName] = value),
-              onSaved: ((newValue) => _newUserMap[users.columnLastName] = newValue),
+              onChanged: (value) {
+                if (value == _user.lastName) return;
+                _user.lastName = value;
+              },
+              onSaved: (newValue)  {
+                if (newValue == null || newValue == _user.lastName) return;
+                _user.lastName = newValue;
+              },
             ),
 
             const SizedBox(height: 27.0),
@@ -118,6 +134,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
                 icon: Icon(Icons.calendar_month),
               ),
               mode: DateTimeFieldPickerMode.date,
+              initialEntryMode: DatePickerEntryMode.calendarOnly,
               dateFormat: DateFormat('dd.MM.y'),
               initialValue: _user.birthDate,
               lastDate: DateTime.now(),
@@ -126,11 +143,11 @@ class _UserFormScreenState extends State<UserFormScreen> {
               validator: _validateDate,
               onDateSelected: (DateTime value) {
                 print('onDateSelected: $value');
-                _newUserMap[users.columnBirthDate] = value;
+                _user.birthDate = value;
               },
               onSaved: (DateTime? newValue) {
                 print('onSaved: $newValue');
-                _newUserMap[users.columnBirthDate] = newValue;
+                _user.birthDate = newValue;
               }
             ),
           ],
@@ -140,8 +157,9 @@ class _UserFormScreenState extends State<UserFormScreen> {
   }
 
   String? _validateName(String? value) {
+    
     if (value == null || value.trim().isEmpty) {
-      return 'Full Name is Requires!';
+      return "Поле обов'язкове!";
     } 
 
     // Check with RegExp
@@ -149,7 +167,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
     var expRes = nameExp.hasMatch(value);
     print('RegExp Result: $expRes');
     if (!expRes) {
-      return 'Please enter alphabetical characters';
+      return 'Допустимі лише буквенні символи';
     }
 
     return null;
@@ -157,12 +175,12 @@ class _UserFormScreenState extends State<UserFormScreen> {
 
   String? _validateDate(DateTime? value) {
     if (value == null) {
-      return "Будь-ласка, введіть Дату народження";
+      return "Поле обов'язкове!";
     }
     return null;
   }
 
-   void _changeFocus(BuildContext context, FocusNode? currentFocus, FocusNode? nextFocus) {
+  void _changeFocus(BuildContext context, FocusNode? currentFocus, FocusNode? nextFocus) {
     if (currentFocus == null || nextFocus == null) return;
 
     currentFocus.unfocus();
@@ -175,21 +193,38 @@ class _UserFormScreenState extends State<UserFormScreen> {
 
       _formStateKey.currentState?.save();
 
-      print('_newUserMap: $_newUserMap');
-      User newUser = User.fromMap(_newUserMap);
-      print(newUser);
       if (_isUpdate) {
-        if (_user != newUser) {
-          print(_user);
-        }
+        _bloc.add(EditUserEvent(_user));
+        Navigator.of(context).pop(_user);
       } else {
-        _bloc.add(AddUserEvent(newUser));
-        Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => const UsersScreen()));
+        _bloc.add(AddUserEvent(_user));
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => const UsersScreen()
+        ));
       }
 
     } else {
       print('Form not Valid!');
     }
+  }
+
+  void _addTestValues() {
+    // final bloc = BlocProvider.of<UsersBloc>(context);
+    _bloc.add(LoadUsersEvent());
+    _bloc.add(
+      AddUserEvent(
+        User(firstName: 'John', lastName: 'Doe', birthDate: DateTime(2000, 20, 12)),
+      ),
+    );
+    _bloc.add(
+      AddUserEvent(
+        User(firstName: 'Ben', lastName: 'Wallas', birthDate: DateTime(1986, 4, 3)),
+      ),
+    );
+    _bloc.add(
+      AddUserEvent(
+        User(firstName: 'Carl', lastName: 'Mall', birthDate: DateTime(1998, 3, 7)),
+      ),
+    );
   }
 }
